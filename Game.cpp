@@ -63,8 +63,6 @@ void enemigo::pintarmapa(){
     }
 }
 
-
-
 void enemigo::pintar(int x, int y){
     gotoxy(x,y); cout<<"O";
 }
@@ -85,15 +83,94 @@ void enemigo::mover(int &x, int &y){
     }
 }
 
+/*
+Portaaviones 5 casillas
+buque 4 casillas
+submarino 3 casillas
+lancha 1 casilla
+*/
+
+class player{
+
+        public:
+            void pintar_pa(int, int , int);
+            void borrar_pa(int, int ,int);
+            void mover_pa(int &, int &,int );
+};
+
+void player::pintar_pa(int x,int y, int c){
+
+    if(c == 0){
+            gotoxy(x,y); cout << "P";
+            gotoxy(x,y+2); cout << "P";
+            gotoxy(x,y+4); cout << "P";
+            gotoxy(x,y+6); cout << "P";
+            gotoxy(x,y+8); cout << "P";
+    }else{
+            gotoxy(x,y); cout << "P";
+            gotoxy(x+2,y); cout << "P";
+            gotoxy(x+4,y); cout << "P";
+            gotoxy(x+6,y); cout << "P";
+            gotoxy(x+8,y); cout << "P";  
+    }
+}
+
+void player::borrar_pa(int x, int y, int c){
+
+    if(c == 0){
+            gotoxy(x,y); cout << " ";
+            gotoxy(x,y+2); cout << " ";
+            gotoxy(x,y+4); cout << " ";
+            gotoxy(x,y+6); cout << " ";
+            gotoxy(x,y+8); cout << " ";
+    }else{
+            gotoxy(x,y); cout << " ";
+            gotoxy(x+2,y); cout << " ";
+            gotoxy(x+4,y); cout << " ";
+            gotoxy(x+6,y); cout << " ";
+            gotoxy(x+8,y); cout << " ";  
+    }
+}
+
+void player::mover_pa(int &x, int &y, int c){
+    if(kbhit()){
+        player::borrar_pa(x,y,c);
+        char tecla = getch();
+        if(tecla == 'w' && y>2) y=y-2;
+        if(tecla == 'a' && x>2) x=x-2;
+
+        if(c==0){
+            if(tecla =='s' && y<18) y=y+2;
+        }
+        if(c==1){
+            if(tecla =='s' && y<26) y=y+2;
+        }
+
+        if(c==0){
+            if(tecla =='d' && x<29) x=x+2;
+        }
+        if(c==1){
+            if(tecla =='d' && x<21) x=x+2;
+        }
+        player::pintar_pa(x,y,c);
+    }
+}
+
 int main(){
 
     enemigo a;
+    player b;
+
     int q1=1;
     int w1=2;
 
+    int q2=1;
+    int w2=4;
     a.pintarmapa();
 
     while(true){
-    a.mover(q1,w1);
+    //a.mover(q1,w1);
+    b.mover_pa(q2,w2,1);
+
     }
 }
