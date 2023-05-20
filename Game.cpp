@@ -43,134 +43,172 @@ char mapa[27][31] = {
     {'|', '-', '|', '-', '|', '-', '|', '-', '|', '-', '|', '-', '|', '-', '|','-','|','-','|','-','|','-','|','-','|','-','|','-','|','-','|'},
 };
 
-
-class enemigo{
-    private:
-
-        public:
-            void pintar(int, int);
-            void mover(int &, int &);
-            void borrar(int, int);
-            void pintarmapa();
+struct coordenadas{
+    int x, y;
 };
 
-void enemigo::pintarmapa(){
-    for(int i=0;i<27;i++){
-        cout << endl;
-        for(int j=0;j<31;j++){
-            cout << mapa[i][j];
-        }
+struct pieza{
+
+    coordenadas ori;
+    coordenadas peri[4];
+
+    char D;
+    char d = '*';
+
+    coordenadas posicion(int n);
+};
+
+coordenadas pieza::posicion(int n){
+    coordenadas ret = {ori.x, ori.y};
+    if(n != 0){
+        ret.x += peri[n-1].x;
+        ret.y += peri[n-1].y;
     }
+    return ret;
 }
-
-void enemigo::pintar(int x, int y){
-    gotoxy(x,y); cout<<"O";
-}
-
-void enemigo::borrar(int x, int y){
-    gotoxy(x,y); cout << " ";
-}
-
-void enemigo::mover(int &x, int &y){
-    if(kbhit()){
-        enemigo::borrar(x,y);
-        char tecla = getch();
-        if(tecla == 'w' && y>2) y=y-2;
-        if(tecla == 'a' && x>2) x=x-2;
-        if(tecla =='s' && y<26) y=y+2;
-        if(tecla =='d' && x<29) x=x+2;
-        enemigo::pintar(x,y);
-    }
-}
-
 /*
 Portaaviones 5 casillas
 buque 4 casillas
 submarino 3 casillas
 lancha 1 casilla
 */
+coordenadas peris[4][4] =
+{{{2,0},{4,0},{6,0},{8,0 } },
+{{2,0},{4,0},{6,0},{ } },
+{{2,0},{4,0},{ },{ } },
+{{ },{ },{ },{ } }};
+
+char barcos[4] = {'P','B','S','L'};
+
+char ju [27][31];
 
 class player{
-
-        public:
-            void pintar_pa(int, int , int);
-            void borrar_pa(int, int ,int);
-            void mover_pa(int &, int &,int );
+    public:
+        void pasarmapa();
+        void dibujarmapaju();
+        void pintar(pieza &, int);
+        void borrar(pieza &);
+        void rotar(pieza &);
+        coordenadas rotar(coordenadas &);
+        void seleccionar(pieza &, int);
+        void mover(pieza &, int &);
+        bool colision(pieza &);
+        
 };
 
-void player::pintar_pa(int x,int y, int c){
-
-    if(c == 0){
-            gotoxy(x,y); cout << "P";
-            gotoxy(x,y+2); cout << "P";
-            gotoxy(x,y+4); cout << "P";
-            gotoxy(x,y+6); cout << "P";
-            gotoxy(x,y+8); cout << "P";
-    }else{
-            gotoxy(x,y); cout << "P";
-            gotoxy(x+2,y); cout << "P";
-            gotoxy(x+4,y); cout << "P";
-            gotoxy(x+6,y); cout << "P";
-            gotoxy(x+8,y); cout << "P";  
+void player::pasarmapa(){
+    for(int i=0;i<27;i++){
+        cout << endl;
+        for(int j=0;j<31;j++){
+            ju[i][j] = mapa[i][j];
+        }
     }
 }
 
-void player::borrar_pa(int x, int y, int c){
-
-    if(c == 0){
-            gotoxy(x,y); cout << " ";
-            gotoxy(x,y+2); cout << " ";
-            gotoxy(x,y+4); cout << " ";
-            gotoxy(x,y+6); cout << " ";
-            gotoxy(x,y+8); cout << " ";
-    }else{
-            gotoxy(x,y); cout << " ";
-            gotoxy(x+2,y); cout << " ";
-            gotoxy(x+4,y); cout << " ";
-            gotoxy(x+6,y); cout << " ";
-            gotoxy(x+8,y); cout << " ";  
+void player::dibujarmapaju(){
+    for(int i=0;i<27;i++){
+        cout << endl;
+        for(int j=0;j<31;j++){
+            cout << ju[i][j];
+        }
     }
 }
 
-void player::mover_pa(int &x, int &y, int c){
+void player::pintar (pieza &P, int r){
+    if(r == 1){
+        for(int i=0; i<5; i++){
+            coordenadas c = P.posicion(i);
+            ju[c.y-1] [c.x-1] = P.d;
+            }
+        }else{
+            for(int i=0; i<5; i++){
+                coordenadas c = P.posicion(i);
+                ju[c.y-1] [c.x-1] = P.D;
+            }
+        }
+    }           
+
+void player::borrar (pieza &P){
+    for(int i=0; i<5; i++){
+        coordenadas c = P.posicion(i);
+        ju[c.y-1] [c.x-1] = ' ';
+    }
+}
+
+coordenadas player::rotar(coordenadas &c){
+    coordenadas ret = {c.y, c.x};
+    return ret;
+}
+
+void player::rotar(pieza &P){
+    for(int i=0;i<4;i++){
+        P.peri[i] = player::rotar(P.peri[i]);
+    }
+}
+
+void player::seleccionar(pieza &P, int r){
+    P.ori.x = 2;
+    P.ori.y = 2;
+    P.D = barcos[r];
+    for(int i=0 ; i<4;i++){
+        P.peri[i] = peris[r][i];
+    }
+}
+
+void player::mover(pieza &P, int &r){
     if(kbhit()){
-        player::borrar_pa(x,y,c);
+        pieza copia = P;
         char tecla = getch();
-        if(tecla == 'w' && y>2) y=y-2;
-        if(tecla == 'a' && x>2) x=x-2;
+        if(tecla == 'w') P.ori.y -=2;
+        if(tecla == 'a') P.ori.x -=2;
+        if(tecla == 's') P.ori.y +=2;
+        if(tecla == 'd') P.ori.x +=2;
 
-        if(c==0){
-            if(tecla =='s' && y<18) y=y+2;
-        }
-        if(c==1){
-            if(tecla =='s' && y<26) y=y+2;
+        if(tecla == 'c'){
+            player::rotar(P);
         }
 
-        if(c==0){
-            if(tecla =='d' && x<29) x=x+2;
+        if(player::colision(P)){
+            P = copia;
         }
-        if(c==1){
-            if(tecla =='d' && x<21) x=x+2;
+        player::borrar(copia);
+        player::pintar(P,1);
+
+        if(tecla == 'x'){
+            player::pintar(P,2);
+            r++;
+            player::seleccionar(P,r);
         }
-        player::pintar_pa(x,y,c);
+    }   
+}
+
+bool player::colision(pieza &P){
+    for(int i=0; i<5; i++){
+        coordenadas c = P.posicion(i);
+        if(c.x < 2 || c.x > 30) return true;
+
+        if(c.y < 2 || c.y >26) return true;
+
+        if(ju[c.y-1][c.x-1] == 'P' || ju[c.y-1][c.x-1] == 'B' || ju[c.y-1][c.x-1] == 'S' || ju[c.y-1][c.x-1] == 'L') return true;
     }
+    return false;
 }
 
 int main(){
 
-    enemigo a;
-    player b;
+    player a;                 
+    pieza S;
+    int r=0;
 
-    int q1=1;
-    int w1=2;
-
-    int q2=1;
-    int w2=4;
-    a.pintarmapa();
+    a.pasarmapa();
+    a.seleccionar(S,r);
+    
 
     while(true){
-    //a.mover(q1,w1);
-    b.mover_pa(q2,w2,1);
+        gotoxy(0,25); a.dibujarmapaju();
+        a.mover(S,r);
 
     }
+
+    return 0;
 }
