@@ -13,12 +13,16 @@
 
 // Function to send data to
 // server socket.
-void* clienthread(void* args)
+class Client
 {
 
-	int client_request = *((int*)args);
+public:
+
 	int network_socket;
-	printf("Client_request: %d\n",client_request);
+	Client(char *IP,int PORT){
+
+
+	//printf("Client_request: %d\n",client_request);
 	// Create a stream socket
 	network_socket = socket(AF_INET,
 							SOCK_STREAM, 0);
@@ -26,34 +30,36 @@ void* clienthread(void* args)
 	// Initialise port number and address
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = INADDR_ANY;
-	server_address.sin_port = htons(4747);
+	server_address.sin_addr.s_addr = inet_addr(IP);
+	server_address.sin_port = htons(PORT);
 
-	// Initiate a socket connection
+	// Iniciar coneccion con el socket
 	int connection_status = connect(network_socket,
 									(struct sockaddr*)&server_address,
 									sizeof(server_address));
 
-	// Check for connection error
+	// Error al conectar
 	if (connection_status < 0) {
 		puts("Error\n");
-		return 0;
+		exit(EXIT_FAILURE);
 	}
 
 	printf("Conexion establecida\n");
-
-	// Send data to the socket
-	send(network_socket, &client_request,
-		sizeof(client_request), 0);
+	}
+	void Enviar(int client_request){
+		send(network_socket, &client_request, sizeof(client_request), 0);
+		printf("Mensaje enviado\n");
+	}
+	void Recibir(int disparo){
+		recv(network_socket,
+			&disparo, sizeof(disparo), 0);
+	}
 
 	//Implementar recibe
-
-	// Close the connection
-	close(network_socket);
-	pthread_exit(NULL);
-
-	return 0;
-}
+	void Cerrar(){
+		close(network_socket);
+	}
+};
 
 // Driver Code
 int main(int argc, char* argv[])
@@ -69,7 +75,7 @@ int main(int argc, char* argv[])
 	// Input
 	int choice;
 	scanf("%d", &choice);
-	pthread_t tid;
+	//pthread_t tid;
 
 	// Create connection
 	// depending on the input
@@ -78,20 +84,22 @@ int main(int argc, char* argv[])
 		int client_request = 1;
 
 		// Create thread
-		pthread_create(&tid, NULL,
-					clienthread,
-					&client_request);
-		sleep(20);
+		//pthread_create(&tid, NULL,
+		//			clienthread,
+		//			&client_request);
+		Client c1(IP,PORT);
+		c1.Enviar(client_request);
 		break;
 	}
 	case 2: {
 		int client_request = 2;
 
 		// Create thread
-		pthread_create(&tid, NULL,
-					clienthread,
-					&client_request);
-		sleep(20);
+		//pthread_create(&tid, NULL,
+		//			clienthread,
+		//			&client_request);
+		Client c1(IP,PORT);
+		c1.Enviar(client_request);
 		break;
 	}
 	default:
@@ -101,5 +109,5 @@ int main(int argc, char* argv[])
 
 	// Suspend execution of
 	// calling thread
-	pthread_join(tid, NULL);
+	//pthread_join(tid, NULL);
 }

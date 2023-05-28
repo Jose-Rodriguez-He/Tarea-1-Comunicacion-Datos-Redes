@@ -10,32 +10,83 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-// Semaphore variables
+// Variables de Semaforo
 sem_t x, y;
 pthread_t tid;
 pthread_t writerthreads[100];
 pthread_t readerthreads[100];
 int readercount = 0;
 
-// Reader Function
+class Server
+{
+
+public:
+	// Variables usadas por el Socket
+	int serverSocket, newSocket,port,choice;
+	struct sockaddr_in serverAddr;
+	struct sockaddr_storage serverStorage;
+	socklen_t addr_size;
+
+	Server(int PORT){
+
+		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+		serverAddr.sin_addr.s_addr = inet_addr("192.168.1.3");
+		serverAddr.sin_family = AF_INET;
+		serverAddr.sin_port = htons(PORT);
+		addr_size = sizeof(serverStorage);
+		// Bind the socket to the
+		// address and port number.
+		bind(serverSocket,
+			(struct sockaddr*)&serverAddr,
+			sizeof(serverAddr));
+
+		// Listen on the socket,
+		// with 40 max connection
+		// requests queued
+		if (listen(serverSocket, 10) == 0)
+			printf("Escuchando\n");
+		else
+			printf("Error\n");
+	}
+	int Aceptar(){
+		// Extract the first
+		// connection in the queue
+		newSocket = accept(serverSocket,
+						(struct sockaddr*)&serverStorage,
+						&addr_size);
+		printf("\nValor newSocket en clase Server: %d",newSocket);
+		return (newSocket);
+	}
+	int Recibir(){
+		recv(newSocket,
+			&choice, sizeof(choice), 0);
+		printf("\nchoice en clase: %d\n",choice);
+		return choice;
+	}
+	void Cerrar(){
+		close(newSocket);
+	}
+
+};
+
+// Funcion Lectora
 void* reader(void* param)
 {
-	// Lock the semaphore
+	// Bloquear Semaforo
 	sem_wait(&x);
 	readercount++;
 
 	if (readercount == 1)
 		sem_wait(&y);
 
-	// Unlock the semaphore
+	// Desbloquear Semaforo
 	sem_post(&x);
 
 	printf("\n%d reader is inside",
 		readercount);
 
-	sleep(5);
 
-	// Lock the semaphore
+	// Bloquear Semaforo
 	sem_wait(&x);
 	readercount--;
 
@@ -43,104 +94,83 @@ void* reader(void* param)
 		sem_post(&y);
 	}
 
-	// Lock the semaphore
+	// Desbloquear Semaforo
 	sem_post(&x);
 
 	printf("\n%d Reader is leaving",
 		readercount + 1);
+	//Cerrar hebra
 	pthread_exit(NULL);
 }
 
-// Writer Function
+// Funcion Escritora
 void* writer(void* param)
 {
 	printf("\nWriter is trying to enter");
 
-	// Lock the semaphore
+	// Bloquear Semaforo
 	sem_wait(&y);
 
 	printf("\nWriter has entered");
 
-	// Unlock the semaphore
+	// Desbloquear Semaforo
 	sem_post(&y);
 
 	printf("\nWriter is leaving");
+	//Cerrar hebra
 	pthread_exit(NULL);
 }
 
 // Driver Code
 int main(int argc, char* argv[])
 {
-	// Initialize variables
-	int serverSocket, newSocket,port;
-	struct sockaddr_in serverAddr;
-	struct sockaddr_storage serverStorage;
 
+	int port,choice,newSocket;
 	port =atoi(argv[1]);
-	socklen_t addr_size;
 	sem_init(&x, 0, 1);
 	sem_init(&y, 0, 1);
 
-	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(port);
-
-	// Bind the socket to the
-	// address and port number.
-	bind(serverSocket,
-		(struct sockaddr*)&serverAddr,
-		sizeof(serverAddr));
-
-	// Listen on the socket,
-	// with 40 max connection
-	// requests queued
-	if (listen(serverSocket, 50) == 0)
-		printf("Escuchando\n");
-	else
-		printf("Error\n");
-
+	Server s1(port);
+	s1.Aceptar();
+	choice = s1.Recibir();
+	printf("\n%d\n",choice);
+	newSocket= s1.Aceptar();
+	printf("\n%d\n",newSocket);
 	// Array for thread
 	pthread_t tid[60];
 
 	int i = 0;
 
 	while (1) {
-		addr_size = sizeof(serverStorage);
-
-		// Extract the first
-		// connection in the queue
-		newSocket = accept(serverSocket,
-						(struct sockaddr*)&serverStorage,
-						&addr_size);
-		int choice = 0;
-		recv(newSocket,
-			&choice, sizeof(choice), 0);
 
 		if (choice == 1) {
 			// Creater readers thread
-			if (pthread_create(&readerthreads[i++], NULL,
-							reader, &newSocket)
-				!= 0)
+			if (pthread_create(&readerthreads[i++], NULL,reader, &newSocket)!= 0){
 
 				// Error in creating thread
 				printf("Error al crear el thread\n");
+			}
+			else{
+				s1.Cerrar();
+			}
 		}
 		else if (choice == 2) {
 			// Create writers thread
-			if (pthread_create(&writerthreads[i++], NULL,
-							writer, &newSocket)
-				!= 0)
+			if (pthread_create(&writerthreads[i++], NULL, writer, &newSocket)!= 0){
 
 				// Error in creating thread
 				printf("Error al crear el thread\n");
+			}
+			else{
+				s1.Cerrar();
+			}
 		}
 
-		if (i >= 50) {
+		if (i >= 10) {
 			// Update i
 			i = 0;
 
-			while (i < 50) {
+			while (i < 10) {
 				// Suspend execution of
 				// the calling thread
 				// until the target
