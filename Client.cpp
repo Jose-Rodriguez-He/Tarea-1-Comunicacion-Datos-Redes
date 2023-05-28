@@ -1,4 +1,3 @@
-// C program for the Client Side
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +18,7 @@ void* clienthread(void* args)
 
 	int client_request = *((int*)args);
 	int network_socket;
-
+	printf("Client_request: %d\n",client_request);
 	// Create a stream socket
 	network_socket = socket(AF_INET,
 							SOCK_STREAM, 0);
@@ -28,7 +27,7 @@ void* clienthread(void* args)
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = INADDR_ANY;
-	server_address.sin_port = htons(8989);
+	server_address.sin_port = htons(4747);
 
 	// Initiate a socket connection
 	int connection_status = connect(network_socket,
@@ -41,11 +40,13 @@ void* clienthread(void* args)
 		return 0;
 	}
 
-	printf("Connection established\n");
+	printf("Conexion establecida\n");
 
 	// Send data to the socket
 	send(network_socket, &client_request,
 		sizeof(client_request), 0);
+
+	//Implementar recibe
 
 	// Close the connection
 	close(network_socket);
@@ -57,11 +58,11 @@ void* clienthread(void* args)
 // Driver Code
 int main(int argc, char* argv[])
 {
-    char ip[20];
-    int port;
-    strcpy(ip,argv[1]);
-    port=atoi(argv[2]);
-    printf("IP %s PORT %d",ip,port);
+
+	char IP[20];
+	int PORT;
+	strcpy(IP,argv[1]);
+	PORT = atoi(argv[2]);
 	printf("1. Read\n");
 	printf("2. Write\n");
 
@@ -94,7 +95,7 @@ int main(int argc, char* argv[])
 		break;
 	}
 	default:
-		printf("Invalid Input\n");
+		printf("Input Invalido\n");
 		break;
 	}
 

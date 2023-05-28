@@ -1,5 +1,3 @@
-// C program for the Server Side
-
 // inet_addr
 #include <arpa/inet.h>
 
@@ -74,10 +72,11 @@ void* writer(void* param)
 int main(int argc, char* argv[])
 {
 	// Initialize variables
-	int serverSocket, newSocket;
+	int serverSocket, newSocket,port;
 	struct sockaddr_in serverAddr;
 	struct sockaddr_storage serverStorage;
 
+	port =atoi(argv[1]);
 	socklen_t addr_size;
 	sem_init(&x, 0, 1);
 	sem_init(&y, 0, 1);
@@ -85,7 +84,7 @@ int main(int argc, char* argv[])
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(argv[1]);
+	serverAddr.sin_port = htons(port);
 
 	// Bind the socket to the
 	// address and port number.
@@ -97,7 +96,7 @@ int main(int argc, char* argv[])
 	// with 40 max connection
 	// requests queued
 	if (listen(serverSocket, 50) == 0)
-		printf("Listening\n");
+		printf("Escuchando\n");
 	else
 		printf("Error\n");
 
@@ -125,7 +124,7 @@ int main(int argc, char* argv[])
 				!= 0)
 
 				// Error in creating thread
-				printf("Failed to create thread\n");
+				printf("Error al crear el thread\n");
 		}
 		else if (choice == 2) {
 			// Create writers thread
@@ -134,7 +133,7 @@ int main(int argc, char* argv[])
 				!= 0)
 
 				// Error in creating thread
-				printf("Failed to create thread\n");
+				printf("Error al crear el thread\n");
 		}
 
 		if (i >= 50) {
