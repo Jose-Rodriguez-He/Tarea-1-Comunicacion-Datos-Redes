@@ -168,7 +168,7 @@ void player::borrar (pieza &P){
         ju[c.y-1] [c.x-1] = ' ';
     }
 }
-
+//funcion ecargada de rotas los barcos a la hora de colocarlos
 coordenadas player::rotar(coordenadas &c){
     coordenadas ret = {c.y, c.x};
     return ret;
@@ -237,7 +237,7 @@ bool player::colision(pieza &P, int q){
     }
     return false;
 }
-
+//encargada de seleccionar una casilla aleatoria en el mapa
 int player::obtenerxy(){
     while(true){
     int x = rand()%19+2;
@@ -253,6 +253,8 @@ void player::selecionamapa(pieza &P, int r, int q){
     }
 }
 
+
+//funcion encargada de realizar los disparos
 void player::disparo(pieza &P, int q){
     for(int i= 0; i<4; i++){
         coordenadas c = P.posicion(i);
@@ -275,7 +277,7 @@ void player::disparo(pieza &P, int q){
         }
     }
 }
-
+// verifica el mapa a la hora de disparar
 int player::verificar(pieza &P){
     for(int i=2;i<27;i++){
         for(int j=0;j<31;j++){
@@ -291,7 +293,7 @@ int player::verificar(pieza &P){
 
 void player::cambioturno(pieza &P, int &t, int r){
     player:: selecionamapa(P,r,2);
-    //player::disparo(P,2);
+    player::disparo(P,2);
     t = 1;
 }
 
@@ -357,7 +359,7 @@ void enemy::mover(pieza &P, int &r, int &t){
 
     }       
 }
-
+//funcion encargada de comprobar para que no hayan colisiones
 bool enemy::colision(pieza &P, int q){
     for(int i=0; i<4; i++){
         coordenadas c = P.posicion(i);
@@ -382,13 +384,13 @@ void enemy::selecionamapa(pieza &P, int r){
         if(!enemy::colision(P,2)) break;
     }
 }
-
+//guarda en una variable un valor aleatorio
 int enemy::obtener(){
     int x = rand()%2;
     return x;
 }
 
-//
+//situa aleatoriamente los barcos del enemigo
 void enemy::iniciarbarcos(pieza &P, int q){
     for(int i = 0; i<5; i++){
         while(true){
@@ -401,7 +403,7 @@ void enemy::iniciarbarcos(pieza &P, int q){
         }
     }
 }
-
+//funcion encargada de pasar los turnos y realizar los ataques
 void player::general(pieza &P, int &t, int r){
     if(turno1 == 0) turno = 0;
     if(turno1 == 1) turno = 1;
@@ -424,14 +426,8 @@ void player::general(pieza &P, int &t, int r){
 
 int main(){
 
-    /*HWND console = GetConsoleWindow();
-    RECT r;
-    GetWindowRect(console, &r);
-    MoveWindow(console, r.left, r.top, 800, 600, TRUE);
-    */
-
     //rand()
-    srand(time(NULL)); //
+    srand(time(NULL)); 
     player a;  
     enemy b;              
     pieza S, S1;
@@ -444,9 +440,11 @@ int main(){
     b.iniciarbarcos(S1,r);
 
     while(true){
+        //posicion de los mapas
         gotoxy(0,30); a.dibujarmapaju();
         gotoxy(0,0); b.dibujarmapaen();
 
+        //turnos
         if(t==0){
             a.mover(S,r);
             if(r == 4) t=1;
