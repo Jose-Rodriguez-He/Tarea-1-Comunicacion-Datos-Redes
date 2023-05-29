@@ -15,5 +15,5 @@ partida independiente a otro cliente.
 ## Como funciona el juego
 
 Para poder empezar a jugar Batalla Naval o BattleShip por su nombre en ingles, se posicionan tus 4 barcos en el tablero con la tecla X y los podremos rotar con la 
-tecla C, los barcos del enemigo se posicionan aleatoriamente. Para poder disparar debemos apretar la tecla z elegir la posicion con las flechas del teclado. Solo
-se podra seguir atacando hasta que ya no queden mas barcos.
+tecla C, los barcos del enemigo se posicionan aleatoriamente. Para poder disparar debemos apretar la tecla z y elegir la posicion con las teclas W,A,S,D; para movernos 
+por el tablero. Solo se podra seguir atacando hasta que ya no queden mas barcos.
