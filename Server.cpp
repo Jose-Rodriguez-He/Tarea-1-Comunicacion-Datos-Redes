@@ -31,7 +31,7 @@ public:
 	Server(int PORT){
 
 		serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-		serverAddr.sin_addr.s_addr = inet_addr("192.168.1.3");
+		serverAddr.sin_addr.s_addr = INADDR_ANY;
 		serverAddr.sin_family = AF_INET;
 		serverAddr.sin_port = htons(PORT);
 		addr_size = sizeof(serverStorage);
