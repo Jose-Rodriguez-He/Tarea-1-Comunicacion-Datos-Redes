@@ -12,3 +12,8 @@ Este famoso juego sera programado en el lenguaje C++ y sera implementado mediant
 una red TCP/IP. Se busca que este software pueda ser multi-clientes, es decir, que soporte mas de un cliente a la vez conectado al servidor y que pueda jugar una
 partida independiente a otro cliente.
 
+## Como funciona el juego
+
+Para poder empezar a jugar Batalla Naval o BattleShip por su nombre en ingles, se posicionan tus 4 barcos en el tablero con la tecla X y los podremos rotar con la 
+tecla C, los barcos del enemigo se posicionan aleatoriamente. Para poder disparar debemos apretar la tecla z elegir la posicion con las flechas del teclado. Solo
+se podra seguir atacando hasta que ya no queden mas barcos.
