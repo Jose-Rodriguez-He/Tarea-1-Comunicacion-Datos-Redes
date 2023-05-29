@@ -9,11 +9,12 @@ all: $(TARGETC) $(TARGETG) $(TARGETS)
 $(TARGETC): Client.cpp
 	$(CC) Client.cpp $(CFLAGS) $(TARGETC)
 
+$(TARGETS): Server.cpp
+	$(CC) Server.cpp $(CFLAGS) $(TARGETS)
+
 $(TARGETG): Game.cpp
 	$(CC) Game.cpp $(CFLAGS) $(TARGETG)
 
-$(TARGETS): Server.cpp
-	$(CC) Server.cpp $(CFLAGS) $(TARGETS)
 
 clean:
 	rm -f $(TARGETC)
