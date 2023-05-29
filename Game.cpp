@@ -4,6 +4,11 @@
 #include<stdlib.h>
 #include<time.h>
 
+//controles/teclas
+// z= disparar
+// x= colocar barcos
+// c= rotar barcos
+
 using namespace std;
 
 //esta funcion permite seleccionar una posicion en un plano cartesiano
@@ -104,8 +109,12 @@ class player{
     private:
         int turno = 0;
         int turno1;
+        int ganaplayer = 0;
+        int ganaenemy = 0;
 
     public:
+
+
         void pasarmapa();
         void dibujarmapaju();
         void pintar(pieza &, int);
@@ -120,6 +129,7 @@ class player{
         void disparo(pieza &, int);
         int verificar(pieza &);
         void cambioturno(pieza &, int &, int);
+        void general(pieza &, int &, int);
 };
 
 void player::pasarmapa(){
@@ -247,7 +257,10 @@ void player::disparo(pieza &P, int q){
     for(int i= 0; i<4; i++){
         coordenadas c = P.posicion(i);
         if(q == 1){
-            if(en2[c.y-1][c.x-1] == 'P' || en2[c.y-1][c.x-1] == 'B' || en2[c.y-1][c.x-1] == 'S' || en2[c.y-1][c.x-1] == 'L') en[c.y-1][c.x-1] = 'O';
+            if(en2[c.y-1][c.x-1] == 'P' || en2[c.y-1][c.x-1] == 'B' || en2[c.y-1][c.x-1] == 'S' || en2[c.y-1][c.x-1] == 'L'){
+                en[c.y-1][c.x-1] = 'O';
+                
+            } 
             if(en2[c.y-1][c.x-1] == ' ') en[c.y-1][c.x-1] = 'X' ;
         }
         if(q == 2){
@@ -278,7 +291,7 @@ int player::verificar(pieza &P){
 
 void player::cambioturno(pieza &P, int &t, int r){
     player:: selecionamapa(P,r,2);
-    player::disparo(P,2);
+    //player::disparo(P,2);
     t = 1;
 }
 
@@ -389,6 +402,25 @@ void enemy::iniciarbarcos(pieza &P, int q){
     }
 }
 
+void player::general(pieza &P, int &t, int r){
+    if(turno1 == 0) turno = 0;
+    if(turno1 == 1) turno = 1;
+
+    if(turno = 0){
+        player::cambioturno(P,t,r);
+    }
+
+    if(turno = 1){
+        if(player::verificar(P) == 1){
+            player::disparo(P,2);
+            t = 1;
+        }
+        if(player::verificar(P) == 2){
+            player::cambioturno(P,t,r);
+            turno1 = 0;
+        }
+    }
+}
 
 int main(){
 
@@ -412,8 +444,8 @@ int main(){
     b.iniciarbarcos(S1,r);
 
     while(true){
-        gotoxy(0,0); a.dibujarmapaju();
-        gotoxy(0,30); b.dibujarmapaen();
+        gotoxy(0,30); a.dibujarmapaju();
+        gotoxy(0,0); b.dibujarmapaen();
 
         if(t==0){
             a.mover(S,r);
@@ -422,7 +454,9 @@ int main(){
         if(t == 1){
             b.mover(S1,r,t);
         }
-        
+        if(t == 2){
+            b.general(S,t,r);
+        }
 
     }
 
