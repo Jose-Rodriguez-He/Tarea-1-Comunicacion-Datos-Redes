@@ -1,7 +1,7 @@
 // inet_addr
 #include <arpa/inet.h>
 
-// For threading, link with lpthread
+// Librerias para hebras
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdio.h>
@@ -17,6 +17,7 @@ pthread_t writerthreads[100];
 pthread_t readerthreads[100];
 int readercount = 0;
 
+//Clase servidor
 class Server
 {
 
@@ -34,23 +35,19 @@ public:
 		serverAddr.sin_family = AF_INET;
 		serverAddr.sin_port = htons(PORT);
 		addr_size = sizeof(serverStorage);
-		// Bind the socket to the
-		// address and port number.
+		// Vincular el socket a la dirección ip y el número de puerto.
 		bind(serverSocket,
 			(struct sockaddr*)&serverAddr,
 			sizeof(serverAddr));
 
-		// Listen on the socket,
-		// with 40 max connection
-		// requests queued
+		// Escuchar el socket, con 10 solicitudes de conexión máximas en cola
 		if (listen(serverSocket, 10) == 0)
 			printf("Escuchando\n");
 		else
 			printf("Error\n");
 	}
 	int Aceptar(){
-		// Extract the first
-		// connection in the queue
+		// Extrae la primera conexión en la cola
 		newSocket = accept(serverSocket,
 						(struct sockaddr*)&serverStorage,
 						&addr_size);
@@ -121,22 +118,25 @@ void* writer(void* param)
 	pthread_exit(NULL);
 }
 
-// Driver Code
+
 int main(int argc, char* argv[])
 {
 
 	int port,choice,newSocket;
+	//recibir por parametro el puerto
 	port =atoi(argv[1]);
+
 	sem_init(&x, 0, 1);
 	sem_init(&y, 0, 1);
-
+	
+	//Crear clase server
 	Server s1(port);
 	s1.Aceptar();
+	
 	choice = s1.Recibir();
 	printf("\n%d\n",choice);
 	newSocket= s1.Aceptar();
 	printf("\n%d\n",newSocket);
-	// Array for thread
 	pthread_t tid[60];
 
 	int i = 0;
@@ -144,10 +144,10 @@ int main(int argc, char* argv[])
 	while (1) {
 
 		if (choice == 1) {
-			// Creater readers thread
+			// Creacion de hebras
 			if (pthread_create(&readerthreads[i++], NULL,reader, &newSocket)!= 0){
 
-				// Error in creating thread
+				// Error al crear la hebra
 				printf("Error al crear el thread\n");
 			}
 			else{
@@ -155,10 +155,10 @@ int main(int argc, char* argv[])
 			}
 		}
 		else if (choice == 2) {
-			// Create writers thread
+			// Creacion de hebras
 			if (pthread_create(&writerthreads[i++], NULL, writer, &newSocket)!= 0){
 
-				// Error in creating thread
+				// Error al crear la hebra
 				printf("Error al crear el thread\n");
 			}
 			else{
@@ -167,21 +167,18 @@ int main(int argc, char* argv[])
 		}
 
 		if (i >= 10) {
-			// Update i
+			// Actualizar i
 			i = 0;
 
 			while (i < 10) {
-				// Suspend execution of
-				// the calling thread
-				// until the target
-				// thread terminates
+				// Suspender la ejecución del subproceso de llamada hasta que finalice el subproceso de destino
 				pthread_join(writerthreads[i++],
 							NULL);
 				pthread_join(readerthreads[i++],
 							NULL);
 			}
 
-			// Update i
+			// Actualizar i
 			i = 0;
 		}
 	}

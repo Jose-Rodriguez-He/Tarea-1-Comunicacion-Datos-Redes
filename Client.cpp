@@ -7,12 +7,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-// For threading, link with lpthread
+// Librerias para hebras
 #include <pthread.h>
 #include <semaphore.h>
 
-// Function to send data to
-// server socket.
+// Clase cliente
 class Client
 {
 
@@ -21,19 +20,17 @@ public:
 	int network_socket;
 	Client(char *IP,int PORT){
 
-
-	//printf("Client_request: %d\n",client_request);
-	// Create a stream socket
+	// Crea el stream socket
 	network_socket = socket(AF_INET,
 							SOCK_STREAM, 0);
 
-	// Initialise port number and address
+	// Incializa el numero de puerto y el de la dirreccion ip
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = inet_addr(IP);
 	server_address.sin_port = htons(PORT);
 
-	// Iniciar coneccion con el socket
+	// Iniciar conexion con el socket
 	int connection_status = connect(network_socket,
 									(struct sockaddr*)&server_address,
 									sizeof(server_address));
@@ -55,38 +52,31 @@ public:
 			&disparo, sizeof(disparo), 0);
 	}
 
-	//Implementar recibe
 	void Cerrar(){
 		close(network_socket);
 	}
 };
 
-// Driver Code
+
 int main(int argc, char* argv[])
 {
 
 	char IP[20];
 	int PORT;
+	//Recibir por parametros la ip y el puerto
 	strcpy(IP,argv[1]);
 	PORT = atoi(argv[2]);
 	printf("1. Read\n");
 	printf("2. Write\n");
 
-	// Input
 	int choice;
 	scanf("%d", &choice);
-	//pthread_t tid;
 
-	// Create connection
-	// depending on the input
 	switch (choice) {
 	case 1: {
 		int client_request = 1;
 
-		// Create thread
-		//pthread_create(&tid, NULL,
-		//			clienthread,
-		//			&client_request);
+		//Crear clase cliente
 		Client c1(IP,PORT);
 		c1.Enviar(client_request);
 		break;
@@ -94,10 +84,7 @@ int main(int argc, char* argv[])
 	case 2: {
 		int client_request = 2;
 
-		// Create thread
-		//pthread_create(&tid, NULL,
-		//			clienthread,
-		//			&client_request);
+		// Crear clase cliente
 		Client c1(IP,PORT);
 		c1.Enviar(client_request);
 		break;
@@ -107,7 +94,4 @@ int main(int argc, char* argv[])
 		break;
 	}
 
-	// Suspend execution of
-	// calling thread
-	//pthread_join(tid, NULL);
 }
